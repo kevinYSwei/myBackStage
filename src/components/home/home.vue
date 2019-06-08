@@ -16,7 +16,7 @@
         </el-col>
         <el-col :span="1" class="login_out">
           <div class="grid-content bg-purple">
-            <a href="#">退出</a>
+            <a href="#" @click.prevent = "login_out">退出</a>
           </div>
         </el-col>
       </el-row>
@@ -112,7 +112,15 @@ export default {
             this.$router.push({name:'login'})
         }
         //如果有 将继续渲染后面的生命周期
-    }
+    },
+    methods: {
+        login_out(){
+            //点击退出按钮 三步 清除本地存储中的token 退出成功提示信息 路由跳转
+            localStorage.clear()
+            this.$message.success('退出成功')
+            this.$router.push({name:'login'})
+        }
+    },
 };
 </script>
 
