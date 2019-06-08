@@ -39,9 +39,9 @@ export default {
           meta: { msg, status }
         } = res.data;
         if (status === 200) {
-        //   this.$router.push({
-        //     name:'home'
-        //   });
+          this.$router.push({
+            name:'home'
+          });
           this.$message.success(msg);
         } else {
           //当登录失败 不跳转、提示登录失败
