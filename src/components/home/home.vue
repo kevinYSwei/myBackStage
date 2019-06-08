@@ -24,7 +24,7 @@
     <el-container>
       <el-aside width="200px" class="aside">
         <el-menu :unique-opened="true" :router="true"> 
-            <!-- 只保持一个子菜单的展开  router 是否使用 vue-router 的模式，启用该模式会在激活导航时以 index 作为 path 进行路由跳转-->
+            <!-- 只保持一个子菜单的展开  router 是否使用 vue-router 的模式，开启路由模式，启用该模式会在激活导航时以 index 作为 path 进行路由跳转 -->
             <!-- 1 -->
           <el-submenu index="1"> <!-- index唯一标志 值不能一样 否则点击后都能展开 -->
             <template slot="title">
