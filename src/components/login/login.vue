@@ -84,7 +84,7 @@ export default {
 }
 .login_wrap .login_form {
   width: 400px;
-  padding: 0 30px 30px;
+  padding: 30px;
   border-radius: 5px;
   background-color: #fff;
 }

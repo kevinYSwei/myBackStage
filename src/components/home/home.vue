@@ -100,7 +100,20 @@
 </template>
 <!-- 快捷键 scaffold -->
 <script>
-export default {};
+export default {
+    data() {
+        return {
+            
+        }
+    },
+    beforeCreate() {
+        const token = localStorage.getItem('token')
+        if(!token){  //判断是否携带token 没有则返回登录组件
+            this.$router.push({name:'login'})
+        }
+        //如果有 将继续渲染后面的生命周期
+    }
+};
 </script>
 
 <style>
