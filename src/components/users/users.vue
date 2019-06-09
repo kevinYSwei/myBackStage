@@ -145,6 +145,7 @@ export default {
       }
     };
   },
+  /* 这行代码用于测试 */
   created() {
     // 在created生命周期中 进行调取后台数据 当然也可以在mountd里调取后台接口
     this.getUserList();
