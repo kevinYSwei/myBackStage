@@ -7,6 +7,7 @@
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
+    <!-- 搜索框 -->
     <el-row class="userSearchWrap">
       <el-col>
         <el-input placeholder="请输入内容" v-model="userSearch" class="usersInput">
@@ -15,7 +16,7 @@
         <el-button type="success" plain>添加用户</el-button>
       </el-col>
     </el-row>
-    <!-- el-table(data数据源[]) el-table-column 列 (label表头 prop="每个对象的属性数据") -->
+    <!-- 表格 el-table(data数据源[]) el-table-column 列 (label表头 prop="每个对象的属性数据") -->
     <el-table :data="userList" style="width: 100%">
       <el-table-column type="index" label="#" width="60"></el-table-column>
       <el-table-column prop="username" label="姓名" width="80"></el-table-column>
@@ -48,6 +49,16 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页 首先需要当前该接口支持分页 url参数中有pagenum pagesize -->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[4, 8, 12, 16]"
+      :page-size="4"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    ></el-pagination>
   </el-card>
 </template>
 <script>
@@ -59,8 +70,8 @@ export default {
       userList: [],
       //分页相关数据
       total: -1, //总数据条数
-      pagenum: 1,
-      pagesize: 3
+      pagenum: 1, //当前页
+      pagesize: 4 //每页显示条数
     };
   },
   created() {
@@ -68,6 +79,23 @@ export default {
     this.getUserList();
   },
   methods: {
+    //分页操作
+    handleSizeChange(val) { //改变每页显示条数
+      console.log(`每页 ${val} 条`);
+      this.pagesize = val;
+      //并且无论原先页码是多少 只要切换页内数据量后 都让他从第一页开始展示
+      this.pagenum = 1;
+      //此方法触发时 要重新从后台获取数据
+      this.$nextTick(()=>{ //延迟加载，在将DOM结构重新加载完成以后再触发
+        this.getUserList();
+      })
+    },
+    handleCurrentChange(val) { //改变页码
+      console.log(`当前页: ${val}`);
+      this.pagenum = val;
+      //此方法触发时 要重新从后台获取数据
+      this.getUserList();
+    },
     async getUserList() {
       //ES7 async await写法
       //query 查询参数 可以为空
