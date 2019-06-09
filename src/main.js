@@ -10,6 +10,11 @@ import 'element-ui/lib/theme-chalk/index.css'
 import '@/assets/css/reset.css'
 /* 引入公共的组件库 */
 Vue.config.productionTip = false;
+//引入全局过滤器
+import filter from './filter'
+for(let i in filter){
+  Vue.filter(i,filter[i])
+}
 //使用ElementUI插件
 Vue.use(ElementUI)
 //以前引入 axios第三方http库使用
