@@ -55,7 +55,7 @@
             plain
             type="primary"
             icon="el-icon-edit"
-            @click="showEditUserMsgBox"
+            @click="showEditUserMsgBox(scope.row)"
             circle
           ></el-button>
           <el-button
@@ -117,7 +117,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleEdit = false">确 定</el-button>
+        <el-button type="primary" @click="confirmEdit">确 定</el-button>
       </div>
       <!-- form里有哪些数据 看接口文档添加用户需要哪些数据 username password email mobile -->
     </el-dialog>
@@ -151,9 +151,25 @@ export default {
     this.getUserList();
   },
   methods: {
+    //当弹出edit dialog框后，点击确定编辑按钮
+    async confirmEdit(){
+        this.dialogFormVisibleEdit = false
+        //put方法,更新（同post一样 post是创建新的） 需要传个请求体 请求体也是对象
+        //将this.form 修改后的数据（双向数据绑定） 提交给后台更新
+        const res = await this.$http.put(`users/${this.form.id}`,this.form) 
+        // console.log(res,22)
+        if(res.data.meta.status === 200){
+          this.$message.success(res.data.meta.msg)
+          this.pagenum = 1   //可设置修改完成后回到第一页
+          this.getUserList() //更新视图
+        }else{
+          this.$message.warning(res.data.meta.msg)
+        }
+    },
     //编辑用户
-    showEditUserMsgBox() {
+    showEditUserMsgBox(user) {
         this.dialogFormVisibleEdit = true
+        this.form = user
     },
     //点击删除小图标
     showDelUserMsgBox(userid) {
@@ -163,7 +179,7 @@ export default {
         type: "warning"
       })
         .then(async () => {
-          //点击确定执行  这里后台提供的方法接口是 delete()
+          //点击确定执行  这里请求方法是 delete() 即删除数据 方式同get
           const res = await this.$http.delete(`users/${userid}`);
           console.log(res, 222);
           if (res.data.meta.status === 200) {
@@ -208,9 +224,11 @@ export default {
         this.form = {};
       }
     },
-    //添加用户--显示dialog
+    //添加用户--显示dialog  
+    //并且因为添加与编辑用的是同一个form 要保证在添加dialog弹出时 form里面的值全为空的
     addUserDialog() {
       this.dialogFormVisibleAdd = true;
+      this.form = {}  //保证表单数据为空
     },
     //点击清空搜索框按钮 触发
     loadUserList() {
