@@ -46,7 +46,12 @@
         <template slot-scope="scope">
           <!-- 用户状态开关 mg_state布尔类型  注意这里mg_state是双向数据绑定
           这里 视图操作改变数据 所以数据的改变也将反过来影响视图-->
-          <el-switch v-model="scope.row.mg_state" @change="userState(scope.row)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <el-switch
+            v-model="scope.row.mg_state"
+            @change="userState(scope.row)"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column prop="address" label="操作">
@@ -67,7 +72,15 @@
             @click="showDelUserMsgBox(scope.row.id)"
             circle
           ></el-button>
-          <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
+          <!-- 分配用户角色 角色名源于后台请求 每个角色权限不同 点击弹出dialog -->
+          <el-button
+            size="mini"
+            plain
+            type="success"
+            icon="el-icon-check"
+            circle
+            @click="showSetUserRoleMsgBox(scope.row)"
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -122,6 +135,26 @@
       </div>
       <!-- form里有哪些数据 看接口文档添加用户需要哪些数据 username password email mobile -->
     </el-dialog>
+    <!-- 设置用户角色 dialog -->
+    <el-dialog title="分配角色" :visible.sync="dialogFormVisibleRole">
+      <el-form :model="form">
+        <el-form-item label="用户名" label-width="100px">{{"这是指当前用户用户名"}}</el-form-item>
+        <el-form-item label="角色" label-width="100px">
+          <!-- 如果select绑定的数据的值 和 option中value的值一样 
+          那么页面就会显示该option中的label值-->
+          <el-select v-model="currRoleId" placeholder>
+            <!--动态就是->数字类型 非动态->字符串 并将option分为两类 -1和v-for遍历出的 -->
+            <el-option label="请选择" :value="-1"></el-option>
+            <!-- 遍历 取出后台数据 -->
+            <!-- <el-option label="区域二" value="beijing"></el-option> -->
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleRole = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 <script>
@@ -138,12 +171,14 @@ export default {
       //添加用户dialog
       dialogFormVisibleAdd: false,
       dialogFormVisibleEdit: false,
+      dialogFormVisibleRole: false,
       form: {
         username: "",
         password: "",
         email: "",
         mobile: ""
-      }
+      },
+      currRoleId:-1
     };
   },
   /* 这行代码用于测试 */
@@ -151,31 +186,38 @@ export default {
     // 在created生命周期中 进行调取后台数据 当然也可以在mountd里调取后台接口
     this.getUserList();
   },
-  methods: {    
+  methods: {
+    //分配角色 打开设置角色的dialog
+    showSetUserRoleMsgBox(user) {
+      this.dialogFormVisibleRole = true
+
+    },
     //当用户状态改变时触发 并实时传给后台
-    async userState(user){
+    async userState(user) {
       //视图操作改变数据 数据存到后台后 再反过来渲染视图 所以相互影响 v-model双向数据绑定
-      const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+      const res = await this.$http.put(
+        `users/${user.id}/state/${user.mg_state}`
+      );
     },
     //当弹出edit dialog框后，点击确定编辑按钮
-    async confirmEdit(){
-        this.dialogFormVisibleEdit = false
-        //put方法,更新（同post一样 post是创建新的） 看接口文档，这里需要传个请求体 请求体也是对象
-        //将this.form 修改后的数据（双向数据绑定） 提交给后台更新
-        const res = await this.$http.put(`users/${this.form.id}`,this.form) 
-        // console.log(res,22)
-        if(res.data.meta.status === 200){
-          this.$message.success(res.data.meta.msg)
-          this.pagenum = 1   //可设置修改完成后回到第一页
-          this.getUserList() //更新视图
-        }else{
-          this.$message.warning(res.data.meta.msg)
-        }
+    async confirmEdit() {
+      this.dialogFormVisibleEdit = false;
+      //put方法,更新（同post一样 post是创建新的） 看接口文档，这里需要传个请求体 请求体也是对象
+      //将this.form 修改后的数据（双向数据绑定） 提交给后台更新
+      const res = await this.$http.put(`users/${this.form.id}`, this.form);
+      // console.log(res,22)
+      if (res.data.meta.status === 200) {
+        this.$message.success(res.data.meta.msg);
+        this.pagenum = 1; //可设置修改完成后回到第一页
+        this.getUserList(); //更新视图
+      } else {
+        this.$message.warning(res.data.meta.msg);
+      }
     },
     //编辑用户
     showEditUserMsgBox(user) {
-        this.dialogFormVisibleEdit = true
-        this.form = user
+      this.dialogFormVisibleEdit = true;
+      this.form = user;
     },
     //点击删除小图标
     showDelUserMsgBox(userid) {
@@ -230,11 +272,11 @@ export default {
         this.form = {};
       }
     },
-    //添加用户--显示dialog  
+    //添加用户--显示dialog
     //并且因为添加与编辑用的是同一个form 要保证在添加dialog弹出时 form里面的值全为空的
     addUserDialog() {
       this.dialogFormVisibleAdd = true;
-      this.form = {}  //保证表单数据为空
+      this.form = {}; //保证表单数据为空
     },
     //点击清空搜索框按钮 触发
     loadUserList() {
