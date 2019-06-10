@@ -44,8 +44,9 @@
       </el-table-column>
       <el-table-column label="用户状态">
         <template slot-scope="scope">
-          <!-- 用户状态开关 mg_state布尔类型-->
-          <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <!-- 用户状态开关 mg_state布尔类型  注意这里mg_state是双向数据绑定
+          这里 视图操作改变数据 所以数据的改变也将反过来影响视图-->
+          <el-switch v-model="scope.row.mg_state" @change="userState(scope.row)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
         </template>
       </el-table-column>
       <el-table-column prop="address" label="操作">
@@ -150,11 +151,16 @@ export default {
     // 在created生命周期中 进行调取后台数据 当然也可以在mountd里调取后台接口
     this.getUserList();
   },
-  methods: {
+  methods: {    
+    //当用户状态改变时触发 并实时传给后台
+    async userState(user){
+      //视图操作改变数据 数据存到后台后 再反过来渲染视图 所以相互影响 v-model双向数据绑定
+      const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+    },
     //当弹出edit dialog框后，点击确定编辑按钮
     async confirmEdit(){
         this.dialogFormVisibleEdit = false
-        //put方法,更新（同post一样 post是创建新的） 需要传个请求体 请求体也是对象
+        //put方法,更新（同post一样 post是创建新的） 看接口文档，这里需要传个请求体 请求体也是对象
         //将this.form 修改后的数据（双向数据绑定） 提交给后台更新
         const res = await this.$http.put(`users/${this.form.id}`,this.form) 
         // console.log(res,22)
