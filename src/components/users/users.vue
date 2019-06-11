@@ -138,21 +138,27 @@
     <!-- 设置用户角色 dialog -->
     <el-dialog title="分配角色" :visible.sync="dialogFormVisibleRole">
       <el-form :model="form">
-        <el-form-item label="用户名" label-width="100px">{{"这是指当前用户用户名"}}</el-form-item>
+        <el-form-item label="用户名" label-width="100px">{{form.username}}</el-form-item>
         <el-form-item label="角色" label-width="100px">
-          <!-- 如果select绑定的数据的值 和 option中value的值一样 
-          那么页面就会显示该option中的label值-->
+          <!-- 如果select绑定的 currRoleId数据的值 和 option中value的值一样时 
+          那么页面就会显示该option中的label值 与原生用法一样-->
           <el-select v-model="currRoleId" placeholder>
             <!--动态就是->数字类型 非动态->字符串 并将option分为两类 -1和v-for遍历出的 -->
             <el-option label="请选择" :value="-1"></el-option>
             <!-- 遍历 取出后台数据 -->
-            <!-- <el-option label="区域二" value="beijing"></el-option> -->
+            <!-- 当通过视图操作改变label值 -> 则对应value值也改变 ->则v-model双向数据绑定的 currRoleId 值也会自动改变 自动关联-->
+            <el-option
+              :label="item.roleName"
+              :value="item.id"
+              v-for="(item,index) in roles"
+              :key="index"
+            ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleRole = false">确 定</el-button>
+        <el-button type="primary" @click="confirmRole(currRoleId)">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -178,7 +184,8 @@ export default {
         email: "",
         mobile: ""
       },
-      currRoleId:-1
+      currRoleId: -1,
+      roles: [] //获取所有的用户角色信息
     };
   },
   /* 这行代码用于测试 */
@@ -187,10 +194,31 @@ export default {
     this.getUserList();
   },
   methods: {
+    //当点击确认更改用户角色后 关闭dialog 发请求修改
+    async confirmRole(currRoleId) {
+      this.dialogFormVisibleRole = false; //隐藏对话框
+      const res = await this.$http.put(`users/${this.form.id}/role`,{
+        rid:currRoleId
+      })
+      if(res.data.meta.status === 200){
+        this.$message.success(res.data.meta.msg)
+      }else{
+        this.$message.warning(res.data.meta.msg)
+      }
+    },
     //分配角色 打开设置角色的dialog
-    showSetUserRoleMsgBox(user) {
-      this.dialogFormVisibleRole = true
+    async showSetUserRoleMsgBox(user) {
+      this.dialogFormVisibleRole = true; //显示对话框
+      this.form = user; //获取用户名
 
+      //获取后台所有的角色信息
+      const resPerson = await this.$http.get("roles");
+      this.roles = resPerson.data.data;
+
+      //获取当前用户的角色Id -> rid
+      const res = await this.$http.get(`users/${user.id}`);
+      this.currRoleId = res.data.data.rid;
+      // console.log(res, 123);
     },
     //当用户状态改变时触发 并实时传给后台
     async userState(user) {
@@ -229,7 +257,7 @@ export default {
         .then(async () => {
           //点击确定执行  这里请求方法是 delete() 即删除数据 方式同get
           const res = await this.$http.delete(`users/${userid}`);
-          console.log(res, 222);
+          // console.log(res, 222);
           if (res.data.meta.status === 200) {
             this.pagenum = 1;
             this.$message({
@@ -258,7 +286,7 @@ export default {
     async confirmAdd() {
       this.dialogFormVisibleAdd = false;
       const res = await this.$http.post("users", this.form);
-      console.log(res, 343);
+      // console.log(res, 343);
       const {
         data,
         meta: { msg, status }
@@ -289,7 +317,7 @@ export default {
     //分页操作
     handleSizeChange(val) {
       //改变每页显示条数
-      console.log(`每页 ${val} 条`);
+      // console.log(`每页 ${val} 条`);
       this.pagesize = val;
       //并且无论原先页码是多少 只要切换页内数据量后 都让他从第一页开始展示
       this.pagenum = 1;
@@ -301,7 +329,7 @@ export default {
     },
     handleCurrentChange(val) {
       //改变页码
-      console.log(`当前页: ${val}`);
+      // console.log(`当前页: ${val}`);
       this.pagenum = val;
       //此方法触发时 要重新从后台获取数据
       this.getUserList();
