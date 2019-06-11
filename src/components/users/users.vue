@@ -194,7 +194,7 @@ export default {
     this.getUserList();
   },
   methods: {
-    //当点击确认更改用户角色后 关闭dialog 发请求修改
+    //当点击确认更改用户角色后  发请求修改后台数据 关闭dialog
     async confirmRole(currRoleId) {
       this.dialogFormVisibleRole = false; //隐藏对话框
       const res = await this.$http.put(`users/${this.form.id}/role`,{
