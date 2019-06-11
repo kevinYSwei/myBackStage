@@ -4,6 +4,8 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import ElementUI from 'element-ui'
+//引入自定义组件 设置成全局组件 MyBread为组件选项所在的对象
+import MyBread from '@/components/custom/myBread.vue'
 // import axios from 'axios'
 import myServerHttp from '@/plugins/http.js'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -21,7 +23,8 @@ Vue.use(ElementUI)
 // Vue.prototype.$axios = axios
 //现在我想改使用 第三方插件的形式 使用这个axios库   Vue.use(axios)
 Vue.use(myServerHttp) //用法还是跟之前一样 直接 this.$http
-
+//设置全局自定义组件
+Vue.component(MyBread.name,MyBread)
 /* eslint-disable no-new */
 new Vue({
   router,
