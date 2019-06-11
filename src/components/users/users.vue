@@ -337,8 +337,8 @@ export default {
       //pagesize 每页显示条数 不能为空 可变量
       //此外 除了登录请求不需要授权，其余其他访问请求都需要【授权API】，必须在请求头中使用Authorization字段并提供token令牌 key:value形式 保证安全降低服务器压力减少会话控制
       //去找axios中设置请求头的代码 当发送请求时 会将请求头安排进请求中进行发送
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      // const AUTH_TOKEN = localStorage.getItem("token");
+      // this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       const res = await this.$http.get(
         //当query为空时 请求加载全部数据
         `users?query=${this.userSearch}&pagenum=${this.pagenum}&pagesize=${
