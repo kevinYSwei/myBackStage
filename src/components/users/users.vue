@@ -50,7 +50,7 @@
           ></el-switch>
         </template>
       </el-table-column>
-      <el-table-column prop="address" label="操作">
+      <el-table-column  label="操作">
         <template slot-scope="scope">
           <el-button
             size="mini"

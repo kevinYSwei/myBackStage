@@ -4,6 +4,7 @@ import Login from '@/components/login/login'
 import Home from '@/components/home/home'
 import Users from '@/components/users/users'
 import Rights from '@/components/rights/rights'
+import Role from '@/components/rights/role'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
           name:'rights',
           path:'/rights',
           component:Rights
+        },
+        {// 配置角色列表
+          name:'role',
+          path:'/role',
+          component:Role
         }
       ]
     },
