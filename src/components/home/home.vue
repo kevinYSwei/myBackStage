@@ -111,11 +111,11 @@ export default {
             navList:[]
         }
     },
-    beforeCreate() {
-        const token = localStorage.getItem('token')
-        if(!token){  //判断是否携带token 没有则返回登录组件
-            this.$router.push({name:'login'})
-        }
+    beforeCreate() { //这种方法 会导致与home同一级的组件 也要进行拦截判断token 很low
+        // const token = localStorage.getItem('token')
+        // if(!token){  //判断是否携带token 没有则返回登录组件
+        //     this.$router.push({name:'login'})
+        // }
         //如果有 将继续渲染后面的生命周期
     },
     created() {
