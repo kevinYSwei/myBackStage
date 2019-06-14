@@ -4,7 +4,8 @@
     <my-bread level1="权限管理" level2="角色列表"></my-bread>
     <el-row>
       <el-col>
-        <el-button type="info" class="addRoleBtn">添加角色</el-button>
+        <!-- 当点击addrole()时 显示添加 dialog -->
+        <el-button type="info" class="addRoleBtn" @click="addNewRoleDiag">添加角色</el-button>
       </el-col>
     </el-row>
     <!-- 显示角色列表 -> 表格内容 -->
@@ -54,21 +55,23 @@
       <el-table-column prop="roleDesc" label="角色描述" width="300"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
+          <!-- 编辑当下角色 -->
           <el-button
             size="mini"
             plain
             type="primary"
             icon="el-icon-edit"
-            @click="showEditUserMsgBox(scope.row)"
+            @click="showEditRoleDiag(scope.row)"
             circle
           ></el-button>
+          <!-- 点击删除该角色 -->
           <el-button
+            type="danger"
             size="mini"
             plain
-            type="danger"
             icon="el-icon-delete"
-            @click="showDelUserMsgBox(scope.row.id)"
             circle
+            @click="showDelRightDiag(scope.row.id)"
           ></el-button>
           <!-- 点击弹出全部权限的dialog 设置当前角色权限 -->
           <el-button
@@ -110,6 +113,36 @@
         <el-button type="primary" @click="confirmEditRole()">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- showAddRoleDiag -->
+    <el-dialog title="添加角色" :visible.sync="dialogAddRole">
+      <el-form :model="addRoleForm" size="mini" class="addRoleForm">
+        <el-form-item label="角色名称" label-width="100px">
+          <el-input v-model="addRoleForm.roleName" size="medium" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" label-width="100px">
+          <el-input v-model="addRoleForm.roleDesc" size="medium" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogAddRole = false">取 消</el-button>
+        <el-button type="primary" @click="confirmAddRole()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 点击编辑按钮时 弹出dialog -->
+    <el-dialog title="编辑角色" :visible.sync="dialogEditRole">
+      <el-form :model="addRoleForm" size="mini" class="addRoleForm">
+        <el-form-item label="角色名称" label-width="100px">
+          <el-input v-model="addRoleForm.roleName" size="medium" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" label-width="100px">
+          <el-input v-model="addRoleForm.roleDesc" size="medium" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogEditRole = false">取 消</el-button>
+        <el-button type="primary" @click="confirmAgainEditRole">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -119,6 +152,8 @@ export default {
     return {
       roleLists: [], //第一层为角色信息 第二层开始为权限说明，权限一共有 3 层权限
       dialogSetRight: false,
+      dialogAddRole: false,
+      dialogEditRole: false,
       treeLists: [],
       defaultProps: {
         children: "children",
@@ -126,33 +161,101 @@ export default {
       },
       arrExpandId: [],
       arrCheckId: [],
-      currRoleId: -1
+      currRoleId: -1, //角色id
+      addRoleForm: {}
     };
   },
   created() {
     this.myRoleList();
   },
   methods: {
-    //当点击确认按钮后 提交数据 关闭dialog 更新对话框  
+    //当再次点击编辑已确认按钮时 请求更新数据 roles/:id  put
+    async confirmAgainEditRole() {
+      this.dialogEditRole = false;
+      const res = await this.$http.put(
+        `roles/${this.addRoleForm.id}`,
+        this.addRoleForm
+      );
+      console.log(res, 22222);
+      if(res.data.meta.status === 200){
+          this.$message.success(res.data.meta.msg)
+      }else{
+           this.$message.warning(res.data.meta.msg)
+      }
+    },
+    //当点击编辑按钮时 弹出dialog
+    showEditRoleDiag(role) {
+      this.dialogEditRole = true;
+      this.addRoleForm = role;
+    },
+    //点击删除当前角色 roles/:id  方法delete
+    showDelRightDiag(roleId) {
+      this.$confirm("即将确定将永久删除该角色, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(async () => {
+          const res = await this.$http.delete(`roles/${roleId}`);
+          //   console.log(res,1111)
+          if (res.data.meta.status === 200) {
+            this.$message.success(res.data.meta.msg);
+            this.myRoleList();
+          } else {
+            this.$message.warning(res.data.meta.msg);
+          }
+        })
+        .catch(() => {
+          this.$message.info("已取消删除");
+        });
+    },
+    //当点击 添加角色dialog的确认按钮时 将数据传递给后台
+    async confirmAddRole() {
+      //隐藏该dialog
+      this.dialogAddRole = false;
+      //当点击添加角色后 请求路径roles
+      //请求参数  roleName角色名称 roleDesc角色描述(可为空)
+      const res = await this.$http.post(`roles`, this.addRoleForm);
+      //   console.log(res, 232);
+      const {
+        data,
+        meta: { msg, status }
+      } = res.data;
+      if (status === 201) {
+        this.$message.success(msg);
+        this.form = {};
+        this.myRoleList(); //更新视图
+      } else {
+        this.$message.warning(msg);
+      }
+    },
+    //当点击 添加角色按钮时 弹出dialog对话框
+    addNewRoleDiag(){
+        this.dialogAddRole = true
+        this.addRoleForm = {} //清空表单输入框
+    },
+    //当点击确认按钮后 提交数据 关闭dialog 更新对话框
     async confirmEditRole() {
-        this.dialogSetRight = false
-        //当点击确认按钮时触发 并且通过el-treeDOM元素的内置方法 来获取此时全选 半选的id
-        //获取全选id的数组，getCheckedKeys()返回目前被选中(全选)的节点的key所组成的数组
-        let arr1 = this.$refs.tree.getCheckedKeys() 
-        //获取半选id的数组， getHalfCheckedKeys()返回当前半选中节点的key所组成的数组
-        let arr2 = this.$refs.tree.getHalfCheckedKeys() 
-        //使用ES6 扩展运算符 可以合并 数组/对象
-        let arr = [...arr1,...arr2]
-        //roles/:roleId/rights   roleId为当前要修改权限的角色id rids请求参数 权限ID列表，包括全选id和半选id ','分割的字符串
-        const res = await this.$http.post(`roles/${this.currRoleId}/rights`,{rids:arr.join(',')})
-        if(res.data.meta.status === 200){
-            this.$message.success(res.data.meta.msg)
-            //并更新渲染视图
-            this.myRoleList()
-        }else{
-            this.$message.warning(res.data.meta.msg)
-        }
-        // console.log(res,7788)
+      this.dialogSetRight = false;
+      //当点击确认按钮时触发 并且通过el-treeDOM元素的内置方法 来获取此时全选 半选的id
+      //获取全选id的数组，getCheckedKeys()返回目前被选中(全选)的节点的key所组成的数组
+      let arr1 = this.$refs.tree.getCheckedKeys();
+      //获取半选id的数组， getHalfCheckedKeys()返回当前半选中节点的key所组成的数组
+      let arr2 = this.$refs.tree.getHalfCheckedKeys();
+      //使用ES6 扩展运算符 可以合并 数组/对象
+      let arr = [...arr1, ...arr2];
+      //roles/:roleId/rights   roleId为当前要修改权限的角色id rids请求参数 权限ID列表，包括全选id和半选id ','分割的字符串
+      const res = await this.$http.post(`roles/${this.currRoleId}/rights`, {
+        rids: arr.join(",")
+      });
+      if (res.data.meta.status === 200) {
+        this.$message.success(res.data.meta.msg);
+        //并更新渲染视图
+        this.myRoleList();
+      } else {
+        this.$message.warning(res.data.meta.msg);
+      }
+      // console.log(res,7788)
     },
     //check按钮 弹出dialog 设置用户权限 并从后台调取所有权限列表的【tree树形】数据
     async showSetRightDiag(role) {
@@ -163,7 +266,7 @@ export default {
       console.log(res, 321);
       //注意：res里 每一个子对象中的pid 皆指向父对象的id值 意味着节点之间的归属嵌套
       //从后台获取 当前选中的角色对象 并取出已经存在的节点id
-    //   console.log(role, 777);
+      //   console.log(role, 777);
       let arrTempCheckId = [];
       role.children.forEach(item1 => {
         //这里注意 因为如果最外层如果有id 那么内层的没有选择的也将会自动勾选上 存在bug 所以push(id) 仅需要push进最内层的id值即可 最内层id提取 外层会自动勾选的
@@ -247,5 +350,8 @@ export default {
 }
 .thirdAuth {
   margin-right: 8px;
+}
+.addRoleForm {
+  margin-right: 50px;
 }
 </style>
