@@ -31,8 +31,8 @@ export default new Router({
           component:Rights
         },
         {// 配置角色列表
-          name:'role',
-          path:'/role',
+          name:'roles',
+          path:'/roles',
           component:Role
         }
       ]

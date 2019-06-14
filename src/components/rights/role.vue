@@ -161,7 +161,7 @@ export default {
       },
       arrExpandId: [],
       arrCheckId: [],
-      currRoleId: -1, //角色id
+      currRoleId: -1, //当前角色id
       addRoleForm: {}
     };
   },

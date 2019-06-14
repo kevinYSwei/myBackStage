@@ -41,7 +41,7 @@ export default {
       const { msg, status } = res.data.meta;
       if (status === 200) {
         this.rightsList = res.data.data;
-        this.$message.success(msg);
+        // this.$message.success(msg);
       } else {
         this.$message.warning(msg);
       }
