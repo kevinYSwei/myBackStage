@@ -5,6 +5,10 @@ import Home from '@/components/home/home'
 import Users from '@/components/users/users'
 import Rights from '@/components/rights/rights'
 import Role from '@/components/rights/role'
+import Goods from '@/components/goods/goods'
+import GoodsAdd from '@/components/goods/goodsAdd'
+import Params from '@/components/goods/params'
+import Categories from '@/components/goods/categories'
 // 单独引入 Message组件
 import { Message } from 'element-ui';
 
@@ -37,6 +41,26 @@ const router = new Router({
           name: 'roles',
           path: '/roles',
           component: Role
+        },
+        {
+          name: 'goods',
+          path: '/goods',
+          component: Goods
+        },
+        {
+          name: 'params',
+          path: '/params',
+          component: Params
+        },
+        {
+          name: 'categories',
+          path: '/categories',
+          component: Categories
+        },
+        {
+          name: 'goodsAdd',
+          path: '/goodsAdd',
+          component: GoodsAdd
         }
       ]
     },
@@ -49,7 +73,7 @@ router.beforeEach((to, from, next) => {
   // to 要去的路由配置  要去哪里
   // from 当前的路由配置 从哪里来
   // next() 让to要去的路由配置继续生效 即放行
-  console.log(to)
+  // console.log(to)
   if (to.path === '/login') {
     next()
   } else {//拦截 并且进行token是否存在的验证 而且每次发出请求后台数据也将会对token进行验证 
