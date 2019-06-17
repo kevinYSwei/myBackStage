@@ -51,17 +51,48 @@
         <el-tab-pane name="2" label="商品参数">
           <!-- 显示的是该三级分类的商品参数 -->
           <!-- 这个是 label input头 -->
-          <el-form-item :label="item1.attr_name" v-for="(item1,i) in arrDtParams" :key='i'>
-              <!-- 这里v-model 绑定的是label选中的组成的数组 因为在请求数据后attr_vals已经转换成数组 所以刚好符合这里参数为数组的要求-->
-            <el-checkbox-group v-model="item1.attr_vals" >
-                <!-- 每一组复选框 -->
-              <el-checkbox border :label="item2" v-for="(item2,i) in item1.attr_vals" :key='i'></el-checkbox>
+          <el-form-item :label="item1.attr_name" v-for="(item1,i) in arrDtParams" :key="i">
+            <!-- 这里v-model 绑定的是label选中的组成的数组 因为在请求数据后attr_vals已经转换成数组 所以刚好符合这里参数为数组的要求-->
+            <el-checkbox-group v-model="item1.attr_vals">
+              <!-- 每一组复选框 -->
+              <el-checkbox border :label="item2" v-for="(item2,i) in item1.attr_vals" :key="i"></el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane name="3" label="商品属性">商品属性</el-tab-pane>
-        <el-tab-pane name="4" label="商品图片">商品图片</el-tab-pane>
-        <el-tab-pane name="5" label="商品内容">商品内容</el-tab-pane>
+        <el-tab-pane name="3" label="商品属性">
+          <!-- 静态 商品属性参数 -->
+          <el-form-item
+            :label="item.attr_name"
+            v-for="(item,index) in arrStaticParams"
+            :key="index"
+          >
+            <el-input v-model="item.attr_vals"></el-input>
+          </el-form-item>
+        </el-tab-pane>
+        <el-tab-pane name="4" label="商品图片">
+          <!-- 图片上传 -->
+          <el-form-item>
+            <!-- 
+                action 上传文件的http开头请求的全路径  
+                headers 请求头 因为除了登录之外等需要进行后台权限token验证 否则不放
+                这里还需设置请求头 因为之前头部设置是给axios发起请求设置的 包括baseURL一样
+            -->
+            <el-upload
+              :headers="uploadHeader"
+              action="http://47.97.214.102:8888/api/private/v1/upload"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :on-success="handleSuccess"
+              list-type="picture"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </el-form-item>
+        </el-tab-pane>
+        <el-tab-pane name="5" label="商品内容">
+            
+        </el-tab-pane>
       </el-tabs>
     </el-form>
   </el-card>
@@ -103,34 +134,77 @@ export default {
       },
       //获取商品的动态参数 数据源  数组
       arrDtParams: [],
-      checkList:[]
+      arrStaticParams: [],
+      //图片上传时 请求头信息
+      uploadHeader:{
+          Authorization:localStorage.getItem("token")
+      }
     };
   },
   created() {
     this.myCascader();
   },
   methods: {
+    // 文件上传 用到的相关方法
+    // handlePreview   handleRemove关闭移除图片时触发 handleSuccess上传临时图片成功时触发
+    handlePreview(file) {
+        console.log(file,111)
+    },
+    handleRemove(file) {
+         //属性 file.response.data.tmp_path 指的是 移除图片上传时候的临时路径
+        console.log(file,222)
+    },
+    handleSuccess(file) {
+        //属性file.data.tmp_path指的是图片上传时候的临时路径 拿到传给后台图片所在的临时路径
+        //这里传上不是真正上传 真正上传还需提交表单才可 这里仅暂时保存到后台服务器的临时文件
+        console.log(file,333)
+    },
+    // tab2/3 公共判断部分
+    publicSelLengh() {
+      if (this.selectedOptions.length !== 3) {
+        //保证此时已经选了三级分类
+        this.$message.warning("请先选择商品的三级分类");
+        return; //阻止代码继续向下执行
+      }
+    },
     //当tab切换时 当点击的是第2个 tab时，且此时第一个tab中已经选了三级分类 有值的前提下
     async tabChange() {
       if (this.activeTab === "2") {
-        if (this.selectedOptions.length !== 3) {
-          //保证此时已经选了三级分类
-          this.$message.warning("请先选择商品的三级分类");
-          return; //阻止代码继续向下执行
-        }
+        //提出去的公共部分
+        this.publicSelLengh.call(this);
         // 否则请求接口 参数列表  :id 分类ID(最后一级的分类id)  many指的是获取动态参数
         //selectedOptions[2] 指的是 分类ID--->(最后一级的分类id)
         const res = await this.$http.get(
           `categories/${this.selectedOptions[2]}/attributes?sel=many`
         );
-        console.log(res, 222);
+        // console.log(res, 222);
         //取出商品的动态参数[]数组 attr_name->label  attr_vals -> 值 类型为字符串类型
         this.arrDtParams = res.data.data;
-        this.arrDtParams.forEach(item=>{//遍历 转换成数组
-            //并不是所有的三级分类都会有动态参数 可能为空字符串 这样v-for会报错  所以要进行条件判断  trim()去掉字符串两端空格 split 分割成数组
-            item.attr_vals = item.attr_vals.length === 0 ? [] :item.attr_vals.trim().split(',')
-        })
-
+        this.arrDtParams.forEach(item => {
+          //遍历 转换成数组
+          //并不是所有的三级分类都会有动态参数 可能为空字符串 这样v-for会报错  所以要进行条件判断  trim()去掉字符串两端空格 split 分割成数组
+          item.attr_vals =
+            item.attr_vals.length === 0 ? [] : item.attr_vals.trim().split(",");
+        });
+      } else if (this.activeTab === "3") {
+        //获取第三个tab页的 静态参数
+        //这里也是需要判断 必须在第一个tab中 已经选择好了三级分类 否则警告提示
+        //将公共判断部分封装一个方法 提出去
+        this.publicSelLengh.call(this);
+        const res = await this.$http.get(
+          `categories/${this.selectedOptions[2]}/attributes?sel=only`
+        );
+        const {
+          data,
+          meta: { msg, status }
+        } = res.data;
+        if (status === 200) {
+          //   this.$message.success(msg);
+          this.arrStaticParams = data;
+        } else {
+          this.$message.warning(msg);
+        }
+        // console.log(res, 333);
       }
     },
     //级联选择器 change事件触发的方法
@@ -138,7 +212,7 @@ export default {
     //页面进来就加载 级联选择器
     async myCascader() {
       const res = await this.$http.get(`categories?type=3`);
-      console.log(res, 111);
+    //   console.log(res, 111);
       const {
         data,
         meta: { msg, status }
