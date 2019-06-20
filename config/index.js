@@ -50,7 +50,8 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    //打包 如果没有显示的话 就改为相对路径  即能找到资源
+    assetsPublicPath: './',
 
     /**
      * Source Maps
