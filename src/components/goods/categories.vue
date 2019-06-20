@@ -72,7 +72,7 @@
 </template>
 
 <script>
-    // 组件局部引入 element-tree-grid
+    // 局部引入组件 element-tree-grid
     var ElTreeGrid = require('element-tree-grid');
     export default {
         components: {

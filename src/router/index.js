@@ -1,16 +1,16 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Login from '@/components/login/login'
-import Home from '@/components/home/home'
-import Users from '@/components/users/users'
-import Rights from '@/components/rights/rights'
-import Role from '@/components/rights/role'
-import Goods from '@/components/goods/goods'
-import GoodsAdd from '@/components/goods/goodsAdd'
-import Params from '@/components/goods/params'
-import Categories from '@/components/goods/categories'
-import Orders from '@/components/orders/orders'
-import Reports from '@/components/reports/reports'
+// import Login from '@/components/login/login'
+// import Home from '@/components/home/home'
+// import Users from '@/components/users/users'
+// import Rights from '@/components/rights/rights'
+// import Role from '@/components/rights/role'
+// import Goods from '@/components/goods/goods'
+// import GoodsAdd from '@/components/goods/goodsAdd'
+// import Params from '@/components/goods/params'
+// import Categories from '@/components/goods/categories'
+// import Orders from '@/components/orders/orders'
+// import Reports from '@/components/reports/reports'
 // 单独引入 Message组件
 import { Message } from 'element-ui'
 
@@ -22,61 +22,60 @@ const router = new Router({
     {
       name: 'login',
       path: '/login',
-      component: Login
+      component: () => import('components/login/login.vue')
     },
     {
       name: 'home',
       path: '/',
-      component: Home,
+      component: () => import('components/home/home'),
       children: [
         {
           name: 'users',
           path: '/users',
-          component: Users
+          component: () => import('components/users/users')
         },
         {
           name: 'rights',
           path: '/rights',
-          component: Rights
+          component: () => import('components/rights/rights')
         },
         {// 配置角色列表
           name: 'roles',
           path: '/roles',
-          component: Role
+          component: () => import('components/rights/role')
         },
         {
           name: 'goods',
           path: '/goods',
-          component: Goods
+          component: () => import('components/goods/goods')
         },
         {
           name: 'params',
           path: '/params',
-          component: Params
+          component: () => import('components/goods/params')
         },
         {
           name: 'categories',
           path: '/categories',
-          component: Categories
+          component: () => import('components/goods/categories')
         },
         {
           name: 'goodsAdd',
           path: '/goodsAdd',
-          component: GoodsAdd
+          component: () => import('components/goods/goodsAdd')
         },
         {
           name: 'orders',
           path: '/orders',
-          component: Orders
+          component: () => import('components/orders/orders')
         },
         {
           name: 'reports',
           path: '/reports',
-          component: Reports
+          component: () => import('components/reports/reports')
         }
       ]
     }
-
   ]
 })
 // 配置全局导航守卫/钩子  beforeEach  在路由配置生效之前进行拦截 判断token存在与否
