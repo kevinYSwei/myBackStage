@@ -10,6 +10,7 @@ import GoodsAdd from '@/components/goods/goodsAdd'
 import Params from '@/components/goods/params'
 import Categories from '@/components/goods/categories'
 import Orders from '@/components/orders/orders'
+import Reports from '@/components/reports/reports'
 // 单独引入 Message组件
 import { Message } from 'element-ui'
 
@@ -67,6 +68,11 @@ const router = new Router({
           name: 'orders',
           path: '/orders',
           component: Orders
+        },
+        {
+          name: 'reports',
+          path: '/reports',
+          component: Reports
         }
       ]
     }

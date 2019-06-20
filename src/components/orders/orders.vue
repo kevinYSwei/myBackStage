@@ -93,7 +93,7 @@
                 this.options = options
                 this.form = row //获取每一个对象的 发货地址  
                 //这里获取到的 发货地址 a:7:{s:6:"cgn_id";i:3;s:7:"user_id";i:224;s:8:"cgn_name";s:6:"鸭蛋";s:11:"cgn_address";s:59:"北京市海淀区西三旗建材城西路中腾大厦15室";s:7:"cgn_tel";s:11:"18902564321";s:8:"cgn_code";s:6:"600214";s:11:"delete_time";N;}
-                
+
                 console.log(this.form,666)
             },
             handleChange(){
