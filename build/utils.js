@@ -47,7 +47,9 @@ exports.cssLoaders = function (options) {
     if (options.extract) {
       return ExtractTextPlugin.extract({
         use: loaders,
-        fallback: 'vue-style-loader'
+        fallback: 'vue-style-loader',
+        //这里解决 打包后图标显示不出来问题
+        publicPath: '../../'
       })
     } else {
       return ['vue-style-loader'].concat(loaders)
