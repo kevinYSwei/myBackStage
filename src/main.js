@@ -2,14 +2,15 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import router from './router'
+import '@/assets/css/reset.css'
+// main.js中的引入顺序决定了打包后css的顺序，组件内的样式没有生效可能是被第三方组件样式覆盖了，所以把第三方组件放在前面引入，router放在后面引入，就可以实现组件样式在第三方样式之后渲染。
 import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 // 引入自定义组件 设置成全局组件 MyBread为组件选项所在的对象
+import router from './router'
 import MyBread from 'components/custom/myBread.vue'
 // import axios from 'axios'
 import myServerHttp from 'plugins/http.js'
-import 'element-ui/lib/theme-chalk/index.css'
-import '@/assets/css/reset.css'
 // 引入全局过滤器
 import filter from './filter'
 /* 引入公共的组件库 */

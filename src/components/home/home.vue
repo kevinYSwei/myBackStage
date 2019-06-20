@@ -23,7 +23,7 @@
     </el-header>
     <el-container>
       <el-aside width="200px" class="aside">
-        <el-menu :unique-opened="true" :router="true">
+        <el-menu class="aside_menu" :unique-opened="true" :router="true">
           <!-- 只保持一个子菜单的展开  router 是否使用 vue-router 的模式，开启路由模式，启用该模式会在激活导航时以 index 作为 path 进行路由跳转 -->
           <!-- 1 更新:实现侧边栏【动态导航】所有数据均在后台请求获取 :index字符串类型-->
           <el-submenu :index="''+item1.order" v-for="(item1,index) in navList" :key="index">
@@ -152,10 +152,14 @@ export default {
   height: 100%;
 }
 .header {
-  background-color: #b3c0d1;
+  background-color: rgb(96, 109, 185);
+  color: #001
 }
 .aside {
-  background-color: #d3dce6;
+  background-color: rgb(148, 191, 216)
+}
+.aside_menu{
+  background-color: rgb(115, 166, 196)
 }
 .main {
   background-color: #e9eef3;

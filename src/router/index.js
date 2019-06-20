@@ -73,6 +73,10 @@ const router = new Router({
           name: 'reports',
           path: '/reports',
           component: () => import('components/reports/reports')
+        },
+        {
+          path: '*',
+          component: () => import('components/users/users')
         }
       ]
     }
